@@ -12,6 +12,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import StaticAppBar from '../../StaticAppBar/StaticAppBar';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
+import ForgotPassword from '../ForgotPassword/ForgotPassword.react';
 
 // Static assets
 import Footer from '../../Footer/Footer.react.js';
@@ -55,13 +56,24 @@ class Login extends Component {
       emailError: true,
       showDialog: false,
       checked: false,
+      showForgotPwd: false,
     };
     this.emailErrorMessage = '';
     this.passwordErrorMessage = '';
   }
 
   handleClose = event => {
-    this.setState({ showDialog: false });
+    this.setState({
+      showDialog: false,
+      showForgotPwd: false,
+    });
+  };
+
+  handleForgotPwd = event => {
+    event.preventDefault;
+    this.setState({
+      showForgotPwd: true,
+    });
   };
 
   componentDidMount() {
@@ -108,6 +120,7 @@ class Login extends Component {
               domain: cookieDomain,
             });
             let accessToken = response.access_token;
+            let uuid = response.uuid;
             let state = this.state;
             let time = response.valid_seconds;
 
@@ -118,7 +131,7 @@ class Login extends Component {
             state.time = time;
             this.setState(state);
 
-            this.handleOnSubmit(email, accessToken, time);
+            this.handleOnSubmit(email, accessToken, time, uuid);
             let msg = 'You are logged in';
             state.msg = msg;
             this.setState(state);
@@ -178,7 +191,7 @@ class Login extends Component {
     this.setState(state);
   };
 
-  handleOnSubmit = (email, loggedIn, time) => {
+  handleOnSubmit = (email, loggedIn, time, uuid) => {
     let state = this.state;
     if (state.success) {
       cookies.set('loggedIn', loggedIn, {
@@ -187,6 +200,11 @@ class Login extends Component {
         domain: cookieDomain,
       });
       cookies.set('emailId', this.state.email, {
+        path: '/',
+        maxAge: time,
+        domain: cookieDomain,
+      });
+      cookies.set('uuid', uuid, {
         path: '/',
         maxAge: time,
         domain: cookieDomain,
@@ -271,10 +289,31 @@ class Login extends Component {
           <StaticAppBar />
         </div>
 
+        <div className="app-body-div">
+          <div className="About">
+            <div className="About-heading">
+              <h1>
+                Meet SUSI.AI, Your Artificial Intelligence for Personal
+                Assistants, Robots, Help Desks and Chatbots.
+              </h1>
+            </div>
+            <div className="points">
+              <p>
+                Ask it questions.
+                <br />
+                <br /> Tell it to do things.
+                <br />
+                <br /> Always ready to help.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="login-container">
           <div className="loginForm">
             <form id="loginform" onSubmit={this.handleSubmit}>
               <div className="login-div">
+                <h2>Log In</h2>
                 <TextField
                   name="email"
                   style={fieldStyle}
@@ -306,8 +345,12 @@ class Login extends Component {
                   disabled={!this.state.validForm}
                 />
                 <div id="forgotpwd">
-                  <Link to="/forgotpwd" className="forgotpwdlink">
-                    <b>Forgot Password?</b>
+                  <Link
+                    to=""
+                    className="forgotpwdlink"
+                    onClick={this.handleForgotPwd}
+                  >
+                    <p>Forgot Password?</p>
                   </Link>
                 </div>
               </div>
@@ -334,27 +377,19 @@ class Login extends Component {
           </div>
         </div>
 
-        <div className="app-body-div">
-          <div className="About">
-            <div className="About-heading">
-              <h1>
-                Meet SUSI.AI, Your Artificial Intelligence for Personal
-                Assistants, Robots, Help Desks and Chatbots.
-              </h1>
-            </div>
-            <div className="points">
-              <p>
-                Ask it questions.
-                <br />
-                <br /> Tell it to do things.
-                <br />
-                <br /> Always ready to help.
-              </p>
-            </div>
-          </div>
+        <Footer />
+
+        <div className="ModalDiv">
+          <Dialog
+            modal={false}
+            open={this.state.showForgotPwd}
+            onRequestClose={this.handleClose}
+            className="ModalDiv"
+          >
+            <ForgotPassword closeModal={this.handleClose.bind(this)} />
+          </Dialog>
         </div>
 
-        <Footer />
         <div>
           <Dialog
             actions={actions}
